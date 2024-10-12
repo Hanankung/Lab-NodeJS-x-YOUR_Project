@@ -5,10 +5,10 @@ const User = require("../model/user"); //เรียกไปยังสมั
 
 //Register ลงทะเบียน
 exports.register = async (req, res) => {
-    const {name,surname,birthday,sex,nationality,religion,address,phonenumber,email,username,password,role} = req.body;
+    const {name,surname,email,username,password,role} = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({name,surname,birthday,sex,nationality,religion,address,phonenumber,email,username,password: hashedPassword,role});
+        const user = new User({name,surname,email,username,password: hashedPassword,role});
         await user.save();
         res.status(201).send("User registered");
     } catch (err) {
@@ -28,13 +28,14 @@ exports.login = async (req, res) => {
         const accessToken = jwt.sign(
             { userId: user._id },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "5m" }
+            { expiresIn: "30m" }
         );
         const refreshToken = jwt.sign(
             { userId: user._id },
-            process.env.REFRESH_TOKEN_SECRET
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: "45m"}
         );
-        res.json({ accessToken, refreshToken });
+        res.json({user, accessToken, refreshToken });
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -42,7 +43,7 @@ exports.login = async (req, res) => {
 
 // Refresh
 exports.refresh = async (req, res) => {
-    const { token } = req.body;
+    const token  = req.headers['authorization']?.split(' ')[1];
     if (!token) return res.sendStatus(401);
     jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
         if (err) return res.sendStatus(403);

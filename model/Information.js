@@ -1,8 +1,8 @@
-//Databases employee
+//Databases employee ข้อมูลที่จะใช้ในการกรอก
 const mongoose = require('mongoose');
 
 const informationSchema = new mongoose.Schema({
-
+    //ใส่ แอคตีบิว เพื่อสร้างdatabase
     name:{type: String, require:true},
     surname: {type:String, require:true},
     birthday:{type:String , reqire:true},

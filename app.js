@@ -4,7 +4,9 @@ const dotenv = require('dotenv');
 
 const app = express();
 app.use(express.json())
+
 dotenv.config();
+
 
 // ConnectDB
 mongoose.connect(process.env.MONGO_DB_URI, {
