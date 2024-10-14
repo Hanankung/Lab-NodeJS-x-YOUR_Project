@@ -18,13 +18,15 @@ exports.register = async (req, res) => {
 
 //Login
 exports.login = async (req, res) => {
-    const {username,password} = req.body;
+    const { username, password } = req.body;
     try {
-        const user = await User.findOne({ username});
+        const user = await User.findOne({ username });
         if (!user) return res.status(400).send("User not found");
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).send("Invalid credentials");
 
+        // สร้าง JWT token
         const accessToken = jwt.sign(
             { userId: user._id },
             process.env.ACCESS_TOKEN_SECRET,
@@ -33,13 +35,16 @@ exports.login = async (req, res) => {
         const refreshToken = jwt.sign(
             { userId: user._id },
             process.env.REFRESH_TOKEN_SECRET,
-            { expiresIn: "45m"}
+            { expiresIn: "45m" }
         );
-        res.json({user, accessToken, refreshToken });
+        
+        // ตรวจสอบการส่ง token กลับ
+        res.status(200).json({ user, accessToken, refreshToken });
     } catch (err) {
         res.status(500).send(err.message);
     }
 };
+
 
 // Refresh
 exports.refresh = async (req, res) => {
