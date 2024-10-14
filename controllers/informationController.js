@@ -1,18 +1,17 @@
 const Information = require('../model/Information');
 
-//getInformation --ดึงข้อมูลมาทั้งหมด
-exports.getInformation = async(req,res) => {
+exports.getInformation = async (req, res) => {
     try {
-        //เรียก model information
-        const information = await Information.find();
-        res.status(200).json({information});
-        res.json(information);
-
-    } catch (err){
-        res.status(500).json({ message: err.message});
-
+      const info = await Information.find(); // สมมุติว่าดึงข้อมูลจาก MongoDB
+      res.status(200).json(info); // ส่งข้อมูลกลับไปยัง client
+    } catch (err) {
+      if (!res.headersSent) { // ตรวจสอบว่า header ถูกส่งไปแล้วหรือไม่
+        res.status(500).json({ message: "Error retrieving information" });
+      } else {
+        console.log("Headers already sent, error cannot be sent: ", err);
+      }
     }
-};
+  };
 
 exports.getInformationID = async (req,res) => {
     try {
